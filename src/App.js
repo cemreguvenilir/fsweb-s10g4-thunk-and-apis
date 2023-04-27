@@ -3,7 +3,13 @@ import { Switch, Route, NavLink } from "react-router-dom";
 import Item from "./components/Item";
 import FavItem from "./components/FavItem";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAnother } from "./actions";
+import { addFav, fetchAnother, getFavsFromLocalStorage } from "./actions";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export function notify(text) {
+  toast(text);
+}
 
 export default function App() {
   const loading = false;
@@ -14,12 +20,17 @@ export default function App() {
 
   useEffect(() => {
     dispatch(fetchAnother());
+    dispatch(getFavsFromLocalStorage());
   }, []);
 
-  function addToFavs() {}
+  function addToFavs() {
+    dispatch(addFav(current));
+    notify("Başarıyla eklendi");
+  }
 
   return (
     <div className="wrapper max-w-xl mx-auto px-4">
+      <ToastContainer />
       <nav className="flex text-2xl pb-6 pt-8 gap-2 justify-center">
         <NavLink
           to="/"
@@ -41,7 +52,9 @@ export default function App() {
       <Switch>
         <Route exact path="/">
           {loading && (
-            <div className="bg-white p-6 text-center shadow-md">YÜKLENİYOR</div>
+            <div className="bg-white p-6 text-center shadow-md">
+              YÜKLENİYOR...
+            </div>
           )}
           {current && <Item data={current} />}
 
@@ -65,7 +78,7 @@ export default function App() {
           <div className="flex flex-col gap-3">
             {favs.length > 0 ? (
               favs.map((item) => (
-                <FavItem key={item.key} id={item.key} title={item.activity} />
+                <FavItem key={item.key} id={item.key} title={item.setup} />
               ))
             ) : (
               <div className="bg-white p-6 text-center shadow-md">
